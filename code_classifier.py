@@ -313,9 +313,51 @@ def fit_classifier(pl_filename, ground_truth_filename, metadata_filename):
 #metadata needed for testing
 clf = fit_classifier(train_scene_filename,
                      train_ground_truth_filename,
-                     train_metadata_filename
+                     train_metadata_f
+
+
+#import pickle
+
+#filename = 'finalized_model.pkl'
+#pickle.dump(clf, open(filename, 'wb'))
+
+
+#to load 
+#loaded_model = pickle.load(open(filename, 'rb'))
+#result = loaded_model.score(X_test, Y_test)
+#print(result)ilename
                      )
 
+#to download model
+#from IPython.display import FileLink, FileLinks
+#FileLinks('.')
+
+
+
+#Referneced from planet.com
+def classified_band_from_y(band_mask, y):
+    class_band = np.ma.array(np.zeros(band_mask.shape),
+                             mask=band_mask.copy())
+    class_band[~class_band.mask] = y
+    return class_band
+
+
+def predict(pl_filename, metadata_filename, clf):
+    bands = load_refl_bands(pl_filename, metadata_filename)
+    X = to_X(bands)
+
+    y = clf.predict(X)
+    
+    return classified_band_from_y(bands[0].mask, y)
+
+train_predicted_class_band = predict(train_scene_filename, train_metadata_filename, clf)
+
+test_predicted_class_band = predict(test_scene_filename, test_metadata_filename, clf)
+class_band = test_predicted_class_band.astype(np.uint8)
+
+plt.figure(1, figsize=(8,8))
+plt.imshow(class_band)
+plt.title('Test Predicted Classes')
 
 
 
